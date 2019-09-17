@@ -1,0 +1,57 @@
+---
+title: "Music Insights"
+author: "Connor Kurland"
+output: html_notebook
+---
+
+First, we need tidyverse to handle data importing and wrangling...
+
+```{R}
+#suppressMessages(install.packages("tidyverse"))
+suppressMessages(library(tidyverse))
+
+#avoid absolute paths
+#use relative paths (can use URLs)
+survey <- read_csv("https://raw.githubusercontent.com/introdsci/MusicSurvey/master/music-survey.csv")
+
+preferences <- read_csv("https://raw.githubusercontent.com/introdsci/MusicSurvey/master/preferences-survey.csv")
+
+```
+
+Number of rows
+```{R}
+nrow(survey)
+```
+
+Column names
+```{R}
+colnames(survey)
+```
+
+Levels
+```{R}
+levels(survey)
+```
+Number of rows
+```{R}
+nrow(preferences)
+```
+
+Column names
+```{R}
+colnames(preferences)
+```
+
+Levels
+```{R}
+levels(preferences)
+```
+
+Cleaning data frame column names:
+```{R}
+colnames(survey)[colnames(survey)=="First, we are going to create a pseudonym for you to keep this survey anonymous (more or less). Which pseudonym generator would you prefer?"] <-"generator_name"
+colnames(survey)[colnames(survey)=="What is your pseudonym"] <- "pseudonym"
+```
+
+
+
