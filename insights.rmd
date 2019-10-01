@@ -102,5 +102,16 @@ Create the Favorite Song table:
 favorite_song <- tibble(pseudonym=survey$pseudonym,favorite_song=survey$favorite_song,favorite_song_artist=survey$favorite_song_artist,favorite_song_link=survey$favorite_song_link)
 ```
 
+A dataset is tidy if:
+1) 1 column per variable
+2) 1 row per observation
+3) cohesive table
 
+```{R}
+library(readr)
+```
+
+```{R}
+person$time_submitted <- as.POSIXlt(parse_datetime(person$time_submitted,format="%m/%d/%y %H:%M"))
+```
 
