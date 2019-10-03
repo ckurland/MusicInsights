@@ -1,7 +1,9 @@
 ---
 title: "Music Insights"
 author: "Connor Kurland"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 First, we need tidyverse to handle data importing and wrangling...
@@ -111,7 +113,49 @@ A dataset is tidy if:
 library(readr)
 ```
 
+Cleaned up the time submitted data in the person table
 ```{R}
 person$time_submitted <- as.POSIXlt(parse_datetime(person$time_submitted,format="%m/%d/%y %H:%M"))
 ```
+
+Categorical variables should be represented as factors:
+Sex, academic_major, academic_year
+
+Making the categorical variables to factors in person
+```{R}
+person$academic_level <- as.factor(person$academic_level)
+person$academic_major <- as.factor(person$academic_major)
+person$sex <- as.factor(person$sex)
+```
+
+Viewing the levels of the categorical variables in person
+```{R}
+levels(person$academic_level)
+levels(person$sex)
+```
+Consolidating the two different CINS names into one in person
+```{R}
+levels(person$academic_major)[levels(person$academic_major)=="Computer information systems"] <- "Computer Information Systems"
+levels(person$academic_major)
+```
+
+Adjusting the column names of the preference table
+```{R}
+colnames(preferences)[colnames(preferences)=="Timestamp"] <- "time_submitted"
+colnames(preferences)[colnames(preferences)=="What was your pseudonym?"] <- "pseudonym"
+```
+
+Create the ratings table. First I use the gather function to create a table, rating_switch, with the artist_song and rating as rows not columns. This makes the data tidy. I then create the rating table by using all the columns except time_submitted from rating_switch
+```{R}
+rating_switch <- gather(preferences,"artist_song","rating",3:45)
+rating <- tibble(pseudonym=rating_switch$pseudonym, artist_song=rating_switch$artist_song, rating=rating_switch$rating)
+```
+
+
+
+
+
+
+
+
 
