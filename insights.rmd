@@ -148,14 +148,31 @@ colnames(preferences)[colnames(preferences)=="What was your pseudonym?"] <- "pse
 Create the ratings table. First I use the gather function to create a table, rating_switch, with the artist_song and rating as rows not columns. This makes the data tidy. I then create the rating table by using all the columns except time_submitted from rating_switch
 ```{R}
 rating_switch <- gather(preferences,"artist_song","rating",3:45)
-rating <- tibble(pseudonym=rating_switch$pseudonym, artist_song=rating_switch$artist_song, rating=rating_switch$rating)
+ratings <- tibble(pseudonym=rating_switch$pseudonym, artist_song=rating_switch$artist_song, rating=rating_switch$rating)
 ```
 
 
+Creating a isual representation of the ratings table
+```{R}
+(rate_box <- ggplot(data=rating, aes(x=artist_song,y=rating)) + geom_boxplot())
+```
+
+In Class:
+```{R}
+ggplot(ratings, aes(x=rating)) + geom_histogram(binwidth=1)
+```
 
 
+to apply limits on x and y axis: xlim(_,_) or ylim(_,_)
+can set stuff to element_blank() to remove from graph
+```{R}
+ggplot(ratings, aes(x=pseudonym,y=rating)) + geom_boxplot() + theme_light()
+```
 
+person's rating of each song
 
+```{R}
+```
 
 
 
