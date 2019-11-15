@@ -6,11 +6,20 @@ output:
     df_print: paged
 ---
 
+This function helps load libraries quicker by only installing them if they aren't already installed. Include is the name of the function.  
+```{R}
+include <- function(library_name){
+  if( !(library_name %in% installed.packages()) )
+    install.packages(library_name)
+  library(library_name,character.only=TRUE)
+}
+```
+
 First, we need tidyverse to handle data importing and wrangling...
 
 ```{R}
 #suppressMessages(install.packages("tidyverse"))
-suppressMessages(library(tidyverse))
+suppressMessages(include("tidyverse"))
 
 #avoid absolute paths
 #use relative paths (can use URLs)
@@ -47,7 +56,7 @@ colnames(preferences)
 Levels
 ```{R}
 levels(preferences)
-```
+```       
 
 Cleaning data frame column names:
 ```{R}
@@ -147,14 +156,14 @@ colnames(preferences)[colnames(preferences)=="What was your pseudonym?"] <- "pse
 
 Create the ratings table. First I use the gather function to create a table, rating_switch, with the artist_song and rating as rows not columns. This makes the data tidy. I then create the rating table by using all the columns except time_submitted from rating_switch
 ```{R}
-rating_switch <- gather(preferences,"artist_song","rating",3:45)
+rating_switch <- preferences %>% gather(key="artist_song",value="rating",3:45)
 ratings <- tibble(pseudonym=rating_switch$pseudonym, artist_song=rating_switch$artist_song, rating=rating_switch$rating)
 ```
 
 
 Creating a isual representation of the ratings table
 ```{R}
-(rate_box <- ggplot(data=rating, aes(x=artist_song,y=rating)) + geom_boxplot())
+(rate_box <- ggplot(data=ratings, aes(x=artist_song,y=rating)) + geom_boxplot())
 ```
 
 In Class:
@@ -169,10 +178,59 @@ can set stuff to element_blank() to remove from graph
 ggplot(ratings, aes(x=pseudonym,y=rating)) + geom_boxplot() + theme_light()
 ```
 
-person's rating of each song
+#### Relational Data
+
+
+```{r}
+
+earliest_time <- min(rating_switch$time_submitted[rating_switch$pseudonym=="Angel Angel"])
+
+rating_switch <- rating_switch %>% filter(!(pseudonym=="Angel Angel" & time_submitted!=earliest_time))
+
+earliest_time <- min(rating_switch$time_submitted[rating_switch$pseudonym=="Mission Theory"])
+
+rating_switch <- rating_switch %>% filter(!(pseudonym=="Mission Theory" & time_submitted!=earliest_time))
+
+earliest_time <- min(rating_switch$time_submitted[rating_switch$pseudonym=="Band War"])
+
+rating_switch <- rating_switch %>% filter(!(pseudonym=="Band War" & time_submitted!=earliest_time))
+```
+
+We want to join the favorite_song table with the ratings table to show each pseudonym, favorite_song and what they rated it as.  
+
+```{r}
+## Reconcile the difference between single- and double-column format of representing
+## a song and its artist
+rating_switch$artist_song <- str_replace_all(rating_switch$artist_song, 
+                                       pattern = "\t", 
+                                       replacement = " ")
+
+favorite_rating <- rating_switch %>% 
+                    left_join(favorite_song, by="pseudonym") %>%
+filter(artist_song==paste(favorite_song_artist,favorite_song)) %>% select(pseudonym,artist_song,rating)
+print(favorite_rating)
+```
+
+Now, How did people rate their favorite songs?
 
 ```{R}
+summary(favorite_rating$rating)
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

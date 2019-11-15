@@ -1,0 +1,63 @@
+---
+title: 'x08: Music Insights Regression'
+author: "Connor Kurland"
+output:
+  html_document:
+    df_print: paged
+---
+
+The first thing we need to do is obtain all of the clean and tidy data from our previously created .Rmd file.  
+
+```{r echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, results='hide'}
+include <- function(library_name){
+  if( !(library_name %in% installed.packages()) )
+    install.packages(library_name) 
+  library(library_name, character.only=TRUE)
+}
+include("tidyverse")
+include("caret")
+include("knitr")
+purl("insights.Rmd", output = "part1.r")
+source("part1.r")
+```
+
+
+One of the new data columns that I am going to add is a column for average song rating for each pseudonym.
+While testing, it occured that none of the variables were good predictors for mean rating or for year_born.   
+
+```{R}
+
+aveRate <- aggregate(rating~pseudonym, ratings, FUN=mean)
+person_end <- left_join(person,aveRate,by="pseudonym")
+
+quality_model <- lm(person_end, formula= rating ~ academic_level+academic_major+sex+year_born)
+summary(quality_model)
+quality_model <- lm(person_end, formula= year_born ~ rating+academic_level+academic_major+sex)
+summary(quality_model)
+
+
+set.seed(385)
+train_samples <- person_end$sex %>%
+  createDataPartition(p = 0.75, list = FALSE)
+train  <- person_end[train_samples, ]
+test <- person_end[-train_samples, ]
+sex_model <- lm( rating ~ academic_level+academic_major+sex+year_born, data = person_end)
+predictions <- sex_model %>% predict(test)
+data.frame( R2 = R2(predictions, test$rating),
+            RMSE = RMSE(predictions, test$rating),
+            MAE = MAE(predictions, test$rating))
+ggplot(test,aes(x=predictions,y=rating)) + geom_point()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
