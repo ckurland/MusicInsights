@@ -23,26 +23,24 @@ source("part1.r")
 
 
 One of the new data columns that I am going to add is a column for average song rating for each pseudonym.
-While testing, it occured that none of the variables were good predictors for mean rating or for year_born.   
+While testing, it occured that none of the variables were good predictors for mean rating.   
 
 ```{R}
 
 aveRate <- aggregate(rating~pseudonym, ratings, FUN=mean)
 person_end <- left_join(person,aveRate,by="pseudonym")
 
-quality_model <- lm(person_end, formula= rating ~ academic_level+academic_major+sex+year_born)
-summary(quality_model)
-quality_model <- lm(person_end, formula= year_born ~ rating+academic_level+academic_major+sex)
+quality_model <- lm(person_end, formula= rating ~ pseudonym_generator+academic_level+academic_major+sex+year_born)
 summary(quality_model)
 
 
 set.seed(385)
-train_samples <- person_end$sex %>%
+train_samples <- person_end$rating %>% na.omit() %>%
   createDataPartition(p = 0.75, list = FALSE)
 train  <- person_end[train_samples, ]
 test <- person_end[-train_samples, ]
-sex_model <- lm( rating ~ academic_level+academic_major+sex+year_born, data = person_end)
-predictions <- sex_model %>% predict(test)
+rate_model <- lm( rating ~ pseudonym_generator+academic_level+academic_major+sex+year_born, data = person_end)
+predictions <- rate_model %>% predict(test)
 data.frame( R2 = R2(predictions, test$rating),
             RMSE = RMSE(predictions, test$rating),
             MAE = MAE(predictions, test$rating))
